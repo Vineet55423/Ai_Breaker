@@ -7,7 +7,7 @@
 
 :root {
     /* Medical Theme Colors */
-    --medical-primary: #4A90E2;
+    --medical-primary: #246AFE;
     --medical-secondary: #E8F4FD;
     --medical-accent: #5DADE2;
     --medical-teal: #3AAFA9;
@@ -185,6 +185,11 @@ nav {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+.hero-buttons #appointment {
+    /* background-color: red; */
+    text-decoration: none;
 }
 
 .hero-stats {
