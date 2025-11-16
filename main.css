@@ -66,12 +66,16 @@ nav {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--gradient-primary);
+    /* background: var(--gradient-primary); */
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 1.2rem;
+}
+
+.logo-icon img {
+    height: 4rem;
 }
 
 .logo-text {
