@@ -140,6 +140,8 @@ nav {
 .hero {
     background: var(--gradient-soft);
     padding: 4rem 3.5rem 4rem;
+    height: 55em;
+    padding-top: 10em;
 }
 
 .hero-container {

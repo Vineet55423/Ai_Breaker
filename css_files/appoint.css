@@ -75,7 +75,7 @@
    }
 
    .logo-text h1 {
-       color: #1e3a8a;
+       color: #000;
        font-size: 1.5em;
    }
 
@@ -116,7 +116,7 @@
    /* Hero Section */
    .hero-section {
        padding: 3rem 0;
-       height: 37rem;
+       height: 55rem;
        display: flex;
        align-items: center;
    }
@@ -373,6 +373,13 @@
        transition: all 0.3s;
        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
        margin-top: 1.5rem;
+   }
+
+   #call a {
+        text-decoration: none;
+        text-transform: none;
+        color: white;
+        font-weight: 500;
    }
 
    .btn:hover {
