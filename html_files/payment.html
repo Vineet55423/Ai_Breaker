@@ -5,21 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Medical Pricing - Hospital UI</title>
-   <link rel="stylesheet" href="/css_files/payment.css">
+    <link rel="stylesheet" href="/css_files/payment.css">
 </head>
 
 <body>
     <div class="pricing-container">
         <!-- Header -->
         <div class="pricing-header">
-            <h1>Simple, transparent pricing</h1>
+            <h1>Simple, Transparent pricing</h1>
             <p>No contracts. No surprise fees.</p>
 
             <!-- Toggle Switch -->
             <div class="toggle-container">
                 <div class="toggle-wrapper">
-                    <button class="toggle-btn active" onclick="togglePricing('monthly')">MONTHLY</button>
-                    <!-- <button class="toggle-btn" onclick="togglePricing('yearly')">YEARLY</button> -->
+                    <button class="toggle-btn" onclick="togglePricing('monthly')">MONTHLY</button>
+                    <button class="toggle-btn" onclick="togglePricing('yearly')">YEARLY</button>
                     <div class="toggle-slider" id="toggleSlider"></div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
         <div class="pricing-cards">
             <!-- Base Plan -->
             <div class="pricing-card">
-                <div class="card-price">
+                <div class="card-price" id="basePrice" data-monthly-price="80" data-yearly-price="72">
                     <span class="amount">$80</span>
                     <span class="period">/month</span>
                 </div>
@@ -50,7 +50,7 @@
             <!-- Pro Plan (Featured) -->
             <div class="pricing-card featured">
                 <div class="card-badge">MOST POPULAR</div>
-                <div class="card-price">
+                <div class="card-price" id="proPrice" data-monthly-price="120" data-yearly-price="108">
                     <span class="amount">$120</span>
                     <span class="period">/month</span>
                 </div>
@@ -63,15 +63,15 @@
                     <li>Chat support</li>
                     <li>Optimize hashtags</li>
                     <li>Unlimited users</li>
-                </ul>   
+                </ul>
 
-                
+
                 <button class="card-button featured">Upgrade</button>
             </div>
 
             <!-- Enterprise Plan -->
             <div class="pricing-card">
-                <div class="card-price">
+                <div class="card-price" id="enterprisePrice" data-monthly-price="260" data-yearly-price="234">
                     <span class="amount">$260</span>
                     <span class="period">/month</span>
                 </div>
@@ -95,34 +95,122 @@
     </div>
     </div>
 
-    <script>
-        // Toggle Switch Animation
-        function togglePricing(type) {
-            const buttons = document.querySelectorAll('.toggle-btn');
-            const slider = document.getElementById('toggleSlider');
+  <script>
+    // Constants for the discount and elements
+    const YEARLY_DISCOUNT = 0.10; // 10%
+    const ALL_PRICE_ELEMENTS = document.querySelectorAll('.card-price');
+    const SLIDER = document.getElementById('toggleSlider');
+    const BUTTONS = document.querySelectorAll('.toggle-btn');
+    const ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-            buttons.forEach(btn => btn.classList.remove('active'));
+    // Function to calculate the discounted price
+    function calculateDiscountedPrice(monthlyPrice) {
+        const discountedPrice = monthlyPrice * (1 - YEARLY_DISCOUNT);
+        return Math.round(discountedPrice);
+    }
 
-            if (type === 'monthly') {
-                buttons[0].classList.add('active');
-                slider.style.left = '6px';
-                slider.style.width = buttons[0].offsetWidth + 'px';
-                slider.style.height = buttons[0].offsetHeight + 'px';
-                slider.style.top = '6px';
-            } else {
-                buttons[1].classList.add('active');
-                slider.style.left = (buttons[0].offsetWidth + 6) + 'px';
-                slider.style.width = buttons[1].offsetWidth + 'px';
-                slider.style.height = buttons[1].offsetHeight + 'px';
-                slider.style.top = '6px';
+    // Function to animate the price change
+    function animatePriceChange(element, startValue, endValue) {
+        const startTime = performance.now();
+
+        function step(currentTime) {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(1, elapsedTime / ANIMATION_DURATION);
+            
+            // Linear interpolation calculation: (end - start) * progress + start
+            const currentValue = startValue + (endValue - startValue) * progress;
+
+            // Update the element text
+            element.textContent = `$${Math.round(currentValue)}`;
+
+            // Continue the animation if not finished
+            if (progress < 1) {
+                requestAnimationFrame(step);
             }
         }
+        requestAnimationFrame(step);
+    }
 
-        // Initialize slider position
-        window.addEventListener('load', () => {
-            togglePricing('monthly');
+
+    // Main Toggle Switch Animation and Price Update
+    function togglePricing(type) {
+        // 1. Update Toggle Button/Slider Style
+        BUTTONS.forEach(btn => btn.classList.remove('active'));
+
+        let selectedButton;
+        if (type === 'monthly') {
+            selectedButton = BUTTONS[0];
+        } else {
+            selectedButton = BUTTONS[1];
+        }
+
+        // Add 'active' class to the selected button
+        selectedButton.classList.add('active');
+
+        // Update slider position using offsetWidth (which is calculated after layout)
+        const leftPosition = selectedButton === BUTTONS[0] ? 6 : (BUTTONS[0].offsetWidth + 6);
+        SLIDER.style.left = leftPosition + 'px';
+        SLIDER.style.width = selectedButton.offsetWidth + 'px';
+        SLIDER.style.height = selectedButton.offsetHeight + 'px';
+        SLIDER.style.top = '6px';
+
+
+        // 2. Update Prices for all Cards
+        ALL_PRICE_ELEMENTS.forEach(priceEl => {
+            const monthlyPrice = parseFloat(priceEl.getAttribute('data-monthly-price'));
+            const amountSpan = priceEl.querySelector('.amount');
+            const periodSpan = priceEl.querySelector('.period');
+            
+            let targetPrice;
+            let newPeriod;
+
+            if (type === 'monthly') {
+                targetPrice = monthlyPrice;
+                newPeriod = '/month';
+            } else { // type === 'yearly'
+                targetPrice = calculateDiscountedPrice(monthlyPrice);
+                newPeriod = '/month';
+            }
+
+            // Get the current displayed price
+            const currentPriceText = amountSpan.textContent.replace('$', '');
+            const currentPrice = parseFloat(currentPriceText) || monthlyPrice; // Use monthlyPrice as fallback
+            
+            // Animate only if the price is changing
+            if (currentPrice !== targetPrice) {
+                animatePriceChange(amountSpan, currentPrice, targetPrice);
+            }
+
+            // Update the period text
+            periodSpan.textContent = newPeriod;
         });
-    </script>
+    }
+
+    /**
+     * Initializes the UI on load. This function is designed to run 
+     * immediately to set the default state without a delay.
+     */
+    function initializePricingUI() {
+        // Run the toggle function once to set the initial 'monthly' state, 
+        // including prices and slider position.
+        togglePricing('monthly');
+    }
+
+    // Call the initialization function immediately after the script loads
+    // instead of waiting for the full window load event.
+    // However, since offsetWidth might still not be ready, wrapping 
+    // it in a small timeout or relying on DOMContentLoaded is safer.
+    
+    // We will stick to DOMContentLoaded for cleaner execution:
+    document.addEventListener('DOMContentLoaded', initializePricingUI);
+    // Alternatively, you could use a small timeout to ensure layout calculations are complete:
+    // window.addEventListener('load', () => setTimeout(initializePricingUI, 10));
+
+    // Keeping the current implementation simple by just using the standard load event for robustness:
+    window.addEventListener('load', initializePricingUI);
+
+
+</script>
 </body>
 
 </html>
